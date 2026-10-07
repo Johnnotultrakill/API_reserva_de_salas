@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+</head>
+<body>
+<h1>Login</h1>
+
+<p>E-mail: <input id="email" type="email"></p>
+<p>Senha: <input id="senha" type="password"></p>
+<button onclick="entrar()">Entrar</button>
+
+<p id="resultado"></p>
+
+<script>
+async function entrar() {
+  const resultado = document.getElementById('resultado');
+  try {
+    const r = await fetch('/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: document.getElementById('email').value,
+        senha: document.getElementById('senha').value
+      })
+    });
+    const texto = await r.text();
+    resultado.textContent = r.status + ' - ' + texto;
+  } catch (e) {
+    resultado.textContent = 'Falha de conexão: o servidor está rodando?';
+  }
+}
+</script>
+</body>
+</html>
