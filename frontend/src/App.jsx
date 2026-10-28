@@ -1,5 +1,8 @@
-import { useState } from 'react'
-import Login from '.login/'
+import { useState, useEffect } from 'react'
+import { api } from './api'
+import Login from './login'
+import Salas from './salas'
+import Reservas from './Reservas'
 
 function lerToken() {
   const token = localStorage.getItem('token')
@@ -14,6 +17,16 @@ function lerToken() {
 
 export default function App() {
   const [usuario, setUsuario] = useState(lerToken())
+  const [salas, setSalas] = useState([])
+
+  async function carregarSalas() {
+    const r = await api('GET', '/salas')
+    if (r.ok) setSalas(r.dados)
+  }
+
+  useEffect(() => {
+    if (usuario) carregarSalas()
+  }, [usuario])
 
   function sair() {
     localStorage.removeItem('token')
@@ -26,9 +39,12 @@ export default function App() {
 
   return (
     <div>
+      <h1>Reserva de salas</h1>
       <p>Logado como {usuario.email} ({usuario.perfil})</p>
       <button onClick={sair}>Sair</button>
-      {/* aqui entram as salas e reservas na próxima etapa */}
+
+      <Salas usuario={usuario} salas={salas} aoMudar={carregarSalas} />
+      <Reservas usuario={usuario} salas={salas} />
     </div>
   )
 }

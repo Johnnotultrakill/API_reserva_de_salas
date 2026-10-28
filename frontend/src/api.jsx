@@ -14,7 +14,7 @@ export async function api(metodo, url, corpo) {
   let dados = texto
   try { dados = JSON.parse(texto) } catch {}
 
-
+  // token expirado: volta para o login
   if (r.status === 401 && token) {
     localStorage.removeItem('token')
     window.location.reload()
