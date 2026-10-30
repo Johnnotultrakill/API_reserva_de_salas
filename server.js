@@ -185,6 +185,80 @@ app.delete('/salas/:id', (req, res)=>{
 
 });
 
+app.get('/reservas', autenticar, (req, res) => {
+    const { sala_id, data } = req.query;
+
+    const condicoes = [];
+    const valores = [];
+
+    if (sala_id !== undefined) {
+        const salaId = Number(sala_id);
+        if (!Number.isInteger(salaId)) {
+            return res.status(400).send("sala_id inválido");
+        }
+        condicoes.push("reservas.sala_id = ?");
+        valores.push(salaId);
+    }
+
+    if (data !== undefined) {
+        const dia = new Date(`${data}T00:00:00`);
+        if (isNaN(dia)) {
+            return res.status(400).send("Data inválida. Use o formato 2026-12-10");
+        }
+        const proximoDia = new Date(dia);
+        proximoDia.setDate(proximoDia.getDate() + 1);
+
+        condicoes.push("reservas.inicio < ? AND reservas.fim > ?");
+        valores.push(proximoDia.toISOString(), dia.toISOString());
+    }
+
+    const where = condicoes.length ? `WHERE ${condicoes.join(" AND ")}` : "";
+
+    db.all(
+        `SELECT reservas.id, reservas.sala_id, salas.numero_sala,
+                reservas.usuario_id, usuarios.nome AS usuario,
+                reservas.inicio, reservas.fim
+         FROM reservas
+         JOIN salas ON salas.id = reservas.sala_id
+         JOIN usuarios ON usuarios.id = reservas.usuario_id
+         ${where}
+         ORDER BY reservas.inicio`,
+        valores,
+        (erro, linhas) => {
+            if (erro) {
+                return res.status(500).send("Erro ao consultar reservas");
+            }
+            res.json(linhas);
+        }
+    );
+});
+
+app.delete('/reservas/:id', autenticar, (req, res) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+        return res.status(400).send("Id inválido");
+    }
+
+    db.get("SELECT * FROM reservas WHERE id = ?", [id], (erroBusca, reserva) => {
+        if (erroBusca) {
+            return res.status(500).send("Erro ao consultar reserva");
+        }
+        if (!reserva) {
+            return res.status(404).send("Reserva não encontrada");
+        }
+        if (reserva.usuario_id !== req.usuario.id && req.usuario.perfil !== 'admin') {
+            return res.status(403).send("Você só pode cancelar suas próprias reservas");
+        }
+
+        db.run("DELETE FROM reservas WHERE id = ?", [id], function (erro) {
+            if (erro) {
+                return res.status(500).send("Erro ao cancelar reserva");
+            }
+            res.json({ mensagem: "Reserva cancelada com sucesso", id });
+        });
+    });
+});
+
 app.listen(porta, () => {
     console.log(`Servidor rodando em http://localhost:${porta}`);
 });
