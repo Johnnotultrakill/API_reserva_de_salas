@@ -15,7 +15,7 @@ export default function Login({ aoEntrar }) {
         localStorage.setItem('token', r.dados.token)
         aoEntrar()
       } else {
-        setErro(r.dados)
+        setErro(String(r.dados))
       }
     } catch {
       setErro('Falha de conexão: o servidor está rodando?')
@@ -23,18 +23,25 @@ export default function Login({ aoEntrar }) {
   }
 
   return (
-    <form onSubmit={entrar}>
-      <h1>Login</h1>
-      <p>
-        E-mail:{' '}
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-      </p>
-      <p>
-        Senha:{' '}
-        <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
-      </p>
-      <button type="submit">Entrar</button>
-      <p>{erro}</p>
-    </form>
+    <div className="login-fundo">
+      <form className="login-cartao" onSubmit={entrar}>
+        <div className="login-topo">
+          <h1>Reserva de Salas</h1>
+          <p>Entre para continuar</p>
+        </div>
+        <div className="login-corpo">
+          <label>
+            E-mail
+            <input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </label>
+          <label>
+            Senha
+            <input type="password" autoComplete="current-password" value={senha} onChange={(e) => setSenha(e.target.value)} />
+          </label>
+          <button className="botao" type="submit">Entrar</button>
+          {erro && <p className="msg">{erro}</p>}
+        </div>
+      </form>
+    </div>
   )
 }

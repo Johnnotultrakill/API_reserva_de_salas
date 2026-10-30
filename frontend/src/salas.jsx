@@ -32,25 +32,26 @@ export default function Salas({ usuario, salas, aoMudar }) {
 
   async function excluir(id) {
     const r = await api('DELETE', '/salas/' + id)
-    if (r.ok) {
-      setMensagem('Sala excluída.')
-      aoMudar()
-    } else {
-      setMensagem(r.status + ' - ' + r.dados)
-    }
+    setMensagem(r.ok ? 'Sala excluída.' : r.status + ' - ' + r.dados)
+    if (r.ok) aoMudar()
   }
 
   return (
-    <div>
+    <section className="cartao">
       <h2>Salas</h2>
-      {salas.length === 0 && <p>Nenhuma sala cadastrada.</p>}
-      <ul>
+      {salas.length === 0 && <p className="vazio">Nenhuma sala cadastrada.</p>}
+      <ul className="lista">
         {salas.map((s) => (
-          <li key={s.id}>
-            Sala {s.numero_sala} - capacidade {s.capacidade}
-            {s.tipo_sala ? ' - ' + s.tipo_sala : ''}
-            {s.recursos ? ' - ' + s.recursos : ''}{' '}
-            {admin && <button onClick={() => excluir(s.id)}>Excluir</button>}
+          <li className="item" key={s.id}>
+            <div>
+              <strong>Sala {s.numero_sala}</strong>
+              <small>
+                Capacidade {s.capacidade}
+                {s.tipo_sala ? ' · ' + s.tipo_sala : ''}
+                {s.recursos ? ' · ' + s.recursos : ''}
+              </small>
+            </div>
+            {admin && <button className="botao-sec" onClick={() => excluir(s.id)}>Excluir</button>}
           </li>
         ))}
       </ul>
@@ -58,15 +59,17 @@ export default function Salas({ usuario, salas, aoMudar }) {
       {admin && (
         <form onSubmit={adicionar}>
           <h3>Adicionar sala</h3>
-          <p>Número: <input value={numero} onChange={(e) => setNumero(e.target.value)} /></p>
-          <p>Capacidade: <input type="number" min="1" value={capacidade} onChange={(e) => setCapacidade(e.target.value)} /></p>
-          <p>Recursos: <input value={recursos} onChange={(e) => setRecursos(e.target.value)} /></p>
-          <p>Tipo: <input value={tipo} onChange={(e) => setTipo(e.target.value)} /></p>
-          <button type="submit">Adicionar sala</button>
+          <div className="campos">
+            <label>Número<input value={numero} onChange={(e) => setNumero(e.target.value)} /></label>
+            <label>Capacidade<input type="number" min="1" value={capacidade} onChange={(e) => setCapacidade(e.target.value)} /></label>
+            <label>Recursos<input value={recursos} onChange={(e) => setRecursos(e.target.value)} /></label>
+            <label>Tipo<input value={tipo} onChange={(e) => setTipo(e.target.value)} /></label>
+          </div>
+          <button className="botao" type="submit">Adicionar sala</button>
         </form>
       )}
 
-      <p>{mensagem}</p>
-    </div>
+      {mensagem && <p className="msg">{mensagem}</p>}
+    </section>
   )
 }

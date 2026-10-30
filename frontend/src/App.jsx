@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { api } from './api'
-import Login from './login'
-import Salas from './salas'
+import Login from './Login'
+import Salas from './Salas'
 import Reservas from './Reservas'
 
 function lerToken() {
@@ -39,12 +39,19 @@ export default function App() {
 
   return (
     <div>
-      <h1>Reserva de salas</h1>
-      <p>Logado como {usuario.email} ({usuario.perfil})</p>
-      <button onClick={sair}>Sair</button>
+      <header className="topo">
+        <span className="marca">Reserva de Salas</span>
+        <div className="usuario">
+          <span>{usuario.email}</span>
+          <span className="selo">{usuario.perfil}</span>
+          <button className="botao-sec" onClick={sair}>Sair</button>
+        </div>
+      </header>
 
-      <Salas usuario={usuario} salas={salas} aoMudar={carregarSalas} />
-      <Reservas usuario={usuario} salas={salas} />
+      <main className="pagina">
+        <Salas usuario={usuario} salas={salas} aoMudar={carregarSalas} />
+        <Reservas usuario={usuario} salas={salas} />
+      </main>
     </div>
   )
 }
